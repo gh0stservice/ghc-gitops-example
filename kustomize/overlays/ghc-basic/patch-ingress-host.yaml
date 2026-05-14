@@ -2,11 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ghc-example-app
-  labels:
-    app.kubernetes.io/name: ghc-example-app
-    app.kubernetes.io/part-of: gh0stcloud-onboarding
 spec:
-  ingressClassName: traefik
   rules:
     - host: example.replace-me.dev.gh0stcloud.de
       http:
