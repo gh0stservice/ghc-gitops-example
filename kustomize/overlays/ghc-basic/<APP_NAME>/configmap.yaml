@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <APP_NAME>-configmap
+  namespace: ghc-nsp-<TENANT_HASH>-<APP_NAME>
+data:
+  ENV_VAR: "VALUE"

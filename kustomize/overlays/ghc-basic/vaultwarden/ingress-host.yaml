@@ -1,0 +1,15 @@
+- op: replace
+  path: /metadata/namespace
+  value: ghc-nsp-<TENANT_HASH>-vaultwarden
+- op: add
+  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+  value: cluster-issuer
+- op: replace
+  path: /spec/rules/0/host
+  value: vaultwarden.<TENANT_HASH>.dev.gh0stcloud.de
+- op: replace
+  path: /spec/tls/0/hosts/0
+  value: vaultwarden.<TENANT_HASH>.dev.gh0stcloud.de
+- op: add
+  path: /spec/tls/0/secretName
+  value: vaultwarden-tls

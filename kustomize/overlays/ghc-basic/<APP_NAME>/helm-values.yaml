@@ -1,0 +1,105 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: my-application
+spec:
+  releaseName: <APP_NAME>
+  serviceAccountName: ghc-nsp-<TENANT_HASH>-<APP_NAME>-flux
+  chart:
+    spec:
+      version: "6.16.1"
+      sourceRef:
+        name: <APP_NAME>
+        namespace: ghc-nsp-<TENANT_HASH>-<APP_NAME>
+  values:
+    applicationName: <APP_NAME>
+    ingress:
+      enabled: false
+
+    service:
+      ports:
+        - name: http-metrics
+          port: 9100
+          targetPort: 9100
+
+    deployment:
+      strategy:
+        type: Recreate
+      resources:
+        limits:
+          cpu: 4
+          memory: 8Gi
+        requests:
+          cpu: 100m
+          memory: 4Gi
+
+      volumes:
+        tmp:
+          emptyDir: {}
+        app-temp:
+          emptyDir: {}
+        log:
+          emptyDir: {}
+        easyocr:
+          emptyDir: {}
+        huggincache:
+          emptyDir: {}
+
+      volumeMounts:
+        tmp:
+          mountPath: /tmp
+        app-temp:
+          mountPath: /app/temp
+        log:
+          mountPath: /app/logs
+        easyocr:
+          mountPath: /home/<APP_NAME>/.EasyOCR
+        huggincache:
+          mountPath: /home/<APP_NAME>/.cache
+
+      envFrom:
+        production-cm:
+          type: configmap
+          name: <APP_NAME>-configmap
+        optional-config:
+          type: secret
+          name: <APP_NAME>-secret
+      replicas: 1
+      imagePullSecrets:
+        - name: <APP_NAME>-registry
+      ports:
+        - name: tcp
+          containerPort: 9100
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+      image:
+        repository: IMAGE_URL
+        tag: IMAGE_TAG
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 999
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+
+    rbac:
+      serviceAccount:
+        enabled: false
+        name: ghc-nsp-<TENANT_HASH>-<APP_NAME>-workload

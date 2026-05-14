@@ -1,0 +1,78 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: ghc-nsp-<TENANT_HASH>-vaultwarden
+spec:
+  serviceAccountName: ghc-nsp-<TENANT_HASH>-vaultwarden-flux
+  chart:
+    spec:
+      version: "0.36.4"
+      sourceRef:
+        namespace: ghc-nsp-<TENANT_HASH>-vaultwarden
+  values:
+    image:
+      tag: "1.36.0-alpine"
+
+    orgCreationUsers: ADMIN_EMAIL
+
+    signupDomains: gh0stservice.com
+    domain: https://vaultwarden.<TENANT_HASH>.dev.gh0stcloud.de
+
+    storage:
+      existingVolumeClaim:
+        claimName: vaultwarden-data
+        dataPath: /data
+
+    database:
+      type: postgresql
+      host: vaultwarden-db-rw.ghc-nsp-<TENANT_HASH>-vaultwarden.svc
+      dbName: vaultwarden
+      port: "5432"
+      existingSecret: vaultwarden-db
+      existingSecretUserKey: username
+      existingSecretPasswordKey: password
+
+    adminToken:
+      existingSecret: vaultwarden-admin
+      existingSecretKey: admin_token
+
+    smtp:
+      existingSecret: vaultwarden-smtp
+      host: SMTP_MAIL_HOST
+      from: SMTP_MAIL_FROM
+      fromName: <TENANT_SLUG> Vault Administrator
+      username:
+        existingSecretKey: username
+      password:
+        existingSecretKey: password
+      acceptInvalidHostnames: "false"
+      acceptInvalidCerts: "false"
+      authMechanism: Login
+      security: starttls
+      port: 587
+
+    ingress:
+      enabled: false
+
+    podSecurityContext:
+      fsGroup: 1001
+      supplementalGroups:
+        - 1001
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      privileged: false
+      runAsGroup: 1001
+      runAsUser: 1001
+      capabilities:
+        drop:
+          - ALL
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    serviceAccount:
+      create: false
+      name: ghc-nsp-<TENANT_HASH>-vaultwarden-workload
