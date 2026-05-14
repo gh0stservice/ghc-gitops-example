@@ -1,0 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: prd-<TENANT_HASH>-vaultwarden
+  namespace: ghc-nsp-<TENANT_HASH>-vaultwarden
+spec:
+  interval: 10m
+  retryInterval: 1m
+  timeout: 10m
+  serviceAccountName: ghc-nsp-<TENANT_HASH>-vaultwarden-flux
+  path: ./kustomize/overlays/ghc-basic/<TENANT_HASH>/vaultwarden
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: ghc-git-<TENANT_HASH>-<TENANT_SLUG>
+    namespace: flux-system
+  wait: true

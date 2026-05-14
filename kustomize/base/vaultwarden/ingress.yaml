@@ -1,20 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ghc-example-app
+  name: vaultwarden
+  namespace: ghc-nsp-tenantHash-vaultwarden
 spec:
+  ingressClassName: traefik
   rules:
-    - host: advanced.replace-me.dev.gh0stcloud.de
+    - host: ""
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: ghc-example-app
+                name: vaultwarden
                 port:
                   number: 80
   tls:
     - hosts:
-        - advanced.replace-me.dev.gh0stcloud.de
-      secretName: ghc-example-app-tls
+        - ""

@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ghc-nsp-<TENANT_HASH>-<APP_NAME>
+
+resources:
+  - ../../../../base/apps/generic/helmrepository.yaml
+  - ../../../../base/apps/generic/helmrelease.yaml
+  - configmap.yaml
+  - externalsecret-tenant.yaml
+  - externalsecret-registry.yaml
+
+patches:
+  - path: helm-values.yaml
+    target:
+      group: helm.toolkit.fluxcd.io
+      kind: HelmRelease
+      name: my-application
+      version: v2
+  - path: helmrelease-name.yaml
+    target:
+      group: helm.toolkit.fluxcd.io
+      kind: HelmRelease
+      name: my-application
+      version: v2
+  - path: helmrepository-namespace.yaml
+    target:
+      group: source.toolkit.fluxcd.io
+      kind: HelmRepository
+      name: my-application
+      version: v1

@@ -1,0 +1,42 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: ghc-nsp-tenantHash-vaultwarden
+spec:
+  releaseName: vaultwarden
+  interval: 10m
+  chart:
+    spec:
+      chart: vaultwarden
+      version: "0.34.4"
+      sourceRef:
+        kind: HelmRepository
+        name: vaultwarden
+        namespace: ghc-nsp-tenantHash-vaultwarden
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    image:
+      tag: 1.35.1-alpine
+
+    domain: https://vaultwarden.invalid
+    signupsAllowed: false
+    emailChangeAllowed: false
+
+    resourceType: StatefulSet
+
+    resources:
+      limits:
+        memory: 2048Mi
+      requests:
+        cpu: 10m
+        memory: 2048Mi
+
+    serviceAccount:
+      create: false
+      name: ""
